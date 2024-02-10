@@ -54,3 +54,4 @@ void remove_end_spaces(char* str) {
     }
     str[index + 1] = '\0';
 }
+//This is Roi the king!

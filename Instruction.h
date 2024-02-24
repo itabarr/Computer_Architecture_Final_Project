@@ -31,6 +31,13 @@ typedef struct {
     FPRegister dst;
     FPRegister src0;
     FPRegister src1;
+
+    // Instruction metadata for printing / debugging
+    uint32_t PC;
+    uint32_t Issue;
+    uint32_t Execute;
+    uint32_t Write_CDB;
+
 } Instruction;
 
 // Function declarations
@@ -38,7 +45,6 @@ Opcode getOpcode(uint32_t instruction);
 FPRegister getDst(uint32_t instruction);
 FPRegister getSrc0(uint32_t instruction);
 FPRegister getSrc1(uint32_t instruction);
-
 
 Instruction* createInstruction(uint32_t hexInstruction);
 void freeInstruction(Instruction* instr);

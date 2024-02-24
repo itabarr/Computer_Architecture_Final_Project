@@ -42,12 +42,14 @@ void printInstruction(const Instruction* instr) {
 }
 Instruction* get_next_instruction(FILE* memin) {
     uint32_t hexInstruction;
-    char line[9]; 
+    char line[10]; 
 
     if (fgets(line, sizeof(line), memin) == NULL) {
+        
         return NULL; 
     }
 
+    line[8] = '\0';
     if (sscanf_s(line, "%x", &hexInstruction) != 1) {
         return NULL; 
     }

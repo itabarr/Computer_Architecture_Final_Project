@@ -15,7 +15,7 @@ typedef struct {
 
 typedef struct {
     //char[NAME_LEN] Name;
-    ReservationStationTag Tag;
+    ReservationStationTag Tag;    
     int d;
     int Vj;
     int Vk;

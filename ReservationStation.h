@@ -9,7 +9,7 @@
 #include "Instruction.h"
 #include "ReservationStation.h"
 #include "RegisterStatus.h"
-
+#include "CDB.h"
 typedef struct {
     // RS Tag
     ReservationStationTag Tag;
@@ -34,6 +34,7 @@ typedef struct {
 
     // Metadata
     uint32_t ExectuionDone;
+    uint32_t IsExectuing;
     Instruction *instruction;
 
 } ReservationStation;
@@ -54,4 +55,7 @@ ReservationStationArray* createReservationStationArray(void);
 void freeReservationStationArray(ReservationStationArray* rsa);
 int IssueInstructionToReservationStationArray(ReservationStationArray* rsa, RegistersTable* regstat, Instruction* instruction);
 int IssueInstructionToReservationStation(ReservationStation * rs, RegistersTable * regstat, Instruction * instruction) ;
+void FindUnitForStation(ReservationStation* rs, UnitArray* ua);
+void FindUnitsForAllStations(ReservationStationArray* rsa , UnitArray* ua);
+void ExecuteAllReservationStations(ReservationStationArray* rsa, CDB* AddCDB, CDB* MulCDB, CDB* DivCDB);
 #endif // REGISTERS_H

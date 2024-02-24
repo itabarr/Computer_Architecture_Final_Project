@@ -137,6 +137,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="ArithmeticUnits.c" />
+    <ClCompile Include="CDB.c" />
     <ClCompile Include="config.c" />
     <ClCompile Include="Instruction.c" />
     <ClCompile Include="main.c" />
@@ -147,7 +148,7 @@
   <ItemGroup>
     <ClInclude Include="ArithmeticUnits.h" />
     <ClInclude Include="CDB.h" />
-    <ClInclude Include="config.h" />
+    <ClInclude Include="globals.h" />
     <ClInclude Include="ReservationStation.h" />
     <ClInclude Include="Instruction.h" />
     <ClInclude Include="InstructionQueue.h" />

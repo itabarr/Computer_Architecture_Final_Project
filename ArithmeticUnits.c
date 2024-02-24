@@ -1,67 +1,57 @@
 #include "ArithmeticUnits.h"
 
-void initUnit(Unit* unit, Operation operation){
-    unit->operation = operation;
-    unit->operand1 = 0.0f;
-    unit->operand2 = 0.0f;
-    unit->result = 0.0f;
-    unit->inner_delay = 0;
-    unit->ready = 0;
-    unit->sign = 0;
-}
-void insertOperands(Unit* unit , float operand1, float operand2) {
-    unit->operand1 = operand1;
-    unit->operand2 = operand2;
-}
-void executeOperation(Unit* unit) {
-    // Check if the operation is ready to be executed
-    if (unit->inner_delay < 0) {
-        printf("Operation not initialized properly.\n");
-        return;
+UnitArray* createUnitArray(void) {
+    UnitArray* ua = (UnitArray*)malloc(sizeof(UnitArray));
+    if (!ua) {
+        // Allocation failed
+        return NULL;
+    }
+    ua->ADD_size = ADD_NR_UNITS; 
+    ua->MUL_size = MUL_NR_UNITS; 
+    ua->DIV_size = DIV_NR_UNITS; 
+
+    ua->AddUnits = (Unit*)malloc(ADD_NR_UNITS * sizeof(Unit));
+    if (ua->AddUnits == NULL) {
+        perror("Failed to allocate ReservationStations");
+        free(ua); // Clean up previously allocated memory
+        return NULL;
     }
 
-    switch (unit->operation) {
-    case OP_ADD:
-        if (unit->inner_delay == ADD_DELAY - 1) {
-            if (unit->sign == 0) {
-                unit->result = unit->operand1 + unit->operand2;
-                unit->ready = 1;
-            }
-            else {
-                unit->result = unit->operand1 - unit->operand2;
-                unit->ready = 1;
-            } 
-        }
-        break;
-    case OP_MUL:
-        if (unit->inner_delay == MUL_DELAY - 1) {
-            unit->result = unit->operand1 * unit->operand2;
-            unit->ready = 1;
-        }
-        break;
-    case OP_DIV:
-        if (unit->inner_delay == DIV_DELAY - 1) {
-            if (unit->operand2 != 0) {
-                unit->result = unit->operand1 / unit->operand2;
-                unit->ready = 1;
-            }
-            else {
-                printf("Error: Division by zero.\n");
-                unit->ready = -1; // Indicate error
-            }
-        }
-        break;
-    default:
-        printf("Unsupported operation.\n");
-        return;
+    for (uint32_t i = 0; i < ADD_NR_UNITS; i++) {
+        ua->AddUnits[i].InternalTimer = 0;
+        ua->AddUnits[i].IsBusy = 0;
     }
-    // Increment inner_delay if not ready
-    if (!unit->ready) {
-        unit->inner_delay++;
+
+    ua->MulUnits = (Unit*)malloc(MUL_NR_UNITS * sizeof(Unit));
+    if (ua->MulUnits == NULL) {
+        perror("Failed to allocate ReservationStations");
+        free(ua); // Clean up previously allocated memory
+        return NULL;
     }
-    else {
-        // Reset inner_delay for potential reuse
-        unit->inner_delay = 0;
+
+    for (uint32_t i = 0; i < MUL_NR_UNITS; i++) {
+        ua->MulUnits[i].InternalTimer = 0;
+        ua->MulUnits[i].IsBusy = 0;
     }
+
+    ua->DivUnits = (Unit*)malloc(DIV_NR_UNITS * sizeof(Unit));
+    if (ua->DivUnits == NULL) {
+        perror("Failed to allocate ReservationStations");
+        free(ua); // Clean up previously allocated memory
+        return NULL;
+    }
+
+    for (uint32_t i = 0; i < DIV_NR_UNITS; i++) {
+        ua->DivUnits[i].InternalTimer = 0;
+        ua->DivUnits[i].IsBusy = 0;
+    }
+    return ua;
+}
+
+void freeUnitArray(UnitArray* ua) {
+    free(ua->AddUnits);
+    free(ua->MulUnits);
+    free(ua->DivUnits);
+    free(ua);
 }
 

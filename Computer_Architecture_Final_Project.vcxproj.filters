@@ -27,23 +27,20 @@
     <ClCompile Include="Instruction.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Registres.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="ArithmeticUnits.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="MemoryAllocation.c">
+    <ClCompile Include="RegisterStatus.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ReservationStation.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="CDB.c">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="config.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Registers.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Instruction.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -53,13 +50,13 @@
     <ClInclude Include="ArithmeticUnits.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="MemoryAllocation.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="ReservationStation.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="CDB.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="globals.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

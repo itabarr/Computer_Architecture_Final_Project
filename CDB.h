@@ -1,9 +1,16 @@
-#pragma once
-#include "ReservationStation.h"
+#ifndef CDB_H
+#define CDB_H
+
+#include "globals.h"
+#include "Instruction.h"
 
 typedef struct {
-    Operation CDBType;
-    ReservationStation Tag;
+    ReservationStationTag Tag;
     float Val;
-    Instruction Instruction;
-    } CDB;
+    uint32_t IsReady;
+    Instruction *Instruction;
+} CDB;
+
+void initCDB(CDB* cdb);
+
+#endif

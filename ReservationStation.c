@@ -1,6 +1,7 @@
 #include "ReservationStation.h"
 #include "globals.h"
 #include "RegisterStatus.h"
+#include "CDB.h";
 
 ReservationStationArray* createReservationStationArray(void) {
     // Allocate the array structure
@@ -39,6 +40,7 @@ ReservationStationArray* createReservationStationArray(void) {
     for (uint32_t i = 0; i < ADD_NR_RESERVATION; i++) {
         rsa->AddStations[i].IsBusy = 0;
         rsa->AddStations[i].ExectuionDone = 0;
+        rsa->AddStations[i].IsExectuing = 0;
         rsa->AddStations[i].Tag.ResIndex = i+1;
         rsa->AddStations[i].Tag.ResType = OP_ADD;
         
@@ -55,6 +57,7 @@ ReservationStationArray* createReservationStationArray(void) {
     for (uint32_t i = 0; i < MUL_NR_RESERVATION; i++) {
         rsa->MulStations[i].IsBusy = 0;
         rsa->MulStations[i].ExectuionDone = 0;
+        rsa->MulStations[i].IsExectuing = 0;
         rsa->MulStations[i].Tag.ResIndex = i+1;
         rsa->MulStations[i].Tag.ResType = OP_MUL;
 
@@ -72,6 +75,7 @@ ReservationStationArray* createReservationStationArray(void) {
     for (uint32_t i = 0; i < DIV_NR_RESERVATION; i++) {
         rsa->DivStations[i].IsBusy = 0;
         rsa->DivStations[i].ExectuionDone = 0;
+        rsa->DivStations[i].IsExectuing = 0;
         rsa->DivStations[i].Tag.ResIndex = i+1;
         rsa->DivStations[i].Tag.ResType = OP_DIV;
 
@@ -94,7 +98,7 @@ void freeReservationStationArray(ReservationStationArray* rsa) {
     free(rsa);
 }
 int IssueInstructionToReservationStationArray(ReservationStationArray* rsa, RegistersTable* regstat,Instruction* instruction) {
-    int i = 0;
+    uint32_t i = 0;
     
     switch (instruction->opcode) {
     case ADD:
@@ -179,4 +183,146 @@ int IssueInstructionToReservationStation(ReservationStation *rs , RegistersTable
     regstat->QiValid[tmp_dst] = 1;
     
     return 1;
+}
+
+void FindUnitForStation(ReservationStation* rs , UnitArray* ua) {
+    Operation cur_op = rs->Tag.ResType;
+    uint32_t i;
+    switch (cur_op) {
+    case OP_ADD:
+
+        for (i = 0; i < ADD_NR_UNITS; i++) {
+            if (!ua->AddUnits[i].IsBusy) {
+                ua->AddUnits[i].IsBusy = 1;
+                ua->AddUnits[i].InternalTimer = ADD_DELAY;
+                
+                rs->ArithUnit = &(ua->AddUnits[i]);
+                rs->IsExectuing = 1;
+            }
+        }
+        break;
+    case OP_MUL:
+        for (i = 0; i < MUL_NR_UNITS; i++) {
+            if (!ua->MulUnits[i].IsBusy) {
+                ua->MulUnits[i].IsBusy = 1;
+                ua->MulUnits[i].InternalTimer = MUL_DELAY;
+
+                rs->ArithUnit = &(ua->MulUnits[i]);
+                rs->IsExectuing = 1;
+            }
+        }
+        break;
+    case OP_DIV:
+        for (i = 0; i < DIV_NR_UNITS; i++) {
+            if (!ua->DivUnits[i].IsBusy) {
+                ua->DivUnits[i].IsBusy = 1;
+                ua->DivUnits[i].InternalTimer = DIV_DELAY;
+
+                rs->ArithUnit = &(ua->DivUnits[i]);
+                rs->IsExectuing = 1;
+            }
+        }
+        break;
+    default:
+        break;
+    }
+    return 0;
+}
+
+void FindUnitsForAllStations(ReservationStationArray* rsa, UnitArray* ua) {
+    uint32_t i;
+    ReservationStation *cur_rs;
+    for (i = 0; i < ADD_NR_RESERVATION; i++) {
+        cur_rs = &(rsa->AddStations[i]);
+
+        if (!cur_rs->IsExectuing & cur_rs->VjValid & cur_rs->VkValid) {
+            FindUnitForStation(cur_rs , ua);
+        }
+
+    }
+    for (i = 0; i < MUL_NR_RESERVATION; i++) {
+        cur_rs = &(rsa->MulStations[i]);
+
+        if (!cur_rs->IsExectuing & cur_rs->VjValid & cur_rs->VkValid) {
+            FindUnitForStation(cur_rs, ua);
+        }
+
+    }
+    for (i = 0; i < DIV_NR_RESERVATION; i++) {
+        cur_rs = &(rsa->DivStations[i]);
+
+        if (!cur_rs->IsExectuing & cur_rs->VjValid & cur_rs->VkValid) {
+            FindUnitForStation(cur_rs, ua);
+        }
+
+    }
+}
+
+void ExecuteAllReservationStations(ReservationStationArray* rsa , CDB *AddCDB , CDB *MulCDB, CDB *DivCDB) {
+    uint32_t i;
+    ReservationStation* cur_rs;
+
+    for (i = 0; i < ADD_NR_RESERVATION; i++) {
+        cur_rs = &(rsa->AddStations[i]);
+
+        if (cur_rs->IsExectuing) {
+            if (cur_rs->ArithUnit->InternalTimer != 0) {
+                cur_rs->ArithUnit->InternalTimer--;
+            }
+            else {
+                if (AddCDB->IsReady) {
+                    AddCDB->IsReady = 0;
+
+                    if (cur_rs->instruction->opcode == ADD) {
+                        AddCDB->Val = cur_rs->Vj + cur_rs->Vk;
+                    }
+
+                    if (cur_rs->instruction->opcode == SUB) {
+                        AddCDB->Val = cur_rs->Vk - cur_rs->Vj;
+                    }
+
+                    
+                    AddCDB->Instruction = cur_rs->instruction;
+                    AddCDB->Tag = cur_rs->Tag;
+                }
+            }
+        }
+    }
+
+    for (i = 0; i < MUL_NR_RESERVATION; i++) {
+        cur_rs = &(rsa->MulStations[i]);
+
+        if (cur_rs->IsExectuing) {
+            if (cur_rs->ArithUnit->InternalTimer != 0) {
+                cur_rs->ArithUnit->InternalTimer--;
+            }
+            else {
+                if (MulCDB->IsReady) {
+                    MulCDB->IsReady = 0;
+                    MulCDB->Val = cur_rs->Vj * cur_rs->Vk; 
+                    MulCDB->Instruction = cur_rs->instruction;
+                    MulCDB->Tag = cur_rs->Tag;
+                }
+            }
+        }
+    }
+
+    for (i = 0; i < DIV_NR_RESERVATION; i++) {
+        cur_rs = &(rsa->DivStations[i]);
+
+        if (cur_rs->IsExectuing) {
+            if (cur_rs->ArithUnit->InternalTimer != 0) {
+                cur_rs->ArithUnit->InternalTimer--;
+            }
+            else {
+                if (DivCDB->IsReady) {
+                    DivCDB->IsReady = 0;
+                    DivCDB->Val = (cur_rs->Vj != 0) ? cur_rs->Vk / cur_rs->Vj : 0;
+                    DivCDB->Instruction = cur_rs->instruction;
+                    DivCDB->Tag = cur_rs->Tag;
+                }
+            }
+        }
+    }
+
 }

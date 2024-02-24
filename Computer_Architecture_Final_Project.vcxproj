@@ -146,6 +146,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ArithmeticUnits.h" />
+    <ClInclude Include="CDB.h" />
     <ClInclude Include="config.h" />
     <ClInclude Include="ReservationStation.h" />
     <ClInclude Include="Instruction.h" />

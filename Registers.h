@@ -16,5 +16,6 @@ typedef struct {
 // Function prototype to initialize the registers table
 void initRegistersTable(RegistersTable* rt);
 void outputRegistersToFile(const RegistersTable* rt, const char* filePath);
+void printRegisterName(FPRegister reg);
 
 #endif // REGISTERS_H

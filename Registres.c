@@ -23,3 +23,7 @@ void outputRegistersToFile(const RegistersTable* rt, const char* filePath) {
 
     fclose(file); // Close the file
 }
+
+void printRegisterName(FPRegister reg) {
+    printf("F%d", reg);
+}

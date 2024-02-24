@@ -5,13 +5,17 @@
 
 int main() {
 
-
 	// Load config to global variables
-	char cfg_file[256] = "C:/Code/Computer_Architecture_Final_Project/inputs/cfg.txt";
-	read_config_from_file(cfg_file);
+	const char* cfg_file= "C:/Code/Computer_Architecture_Final_Project/inputs/cfg.txt";
+	const char* memin_file = "C:/Code/Computer_Architecture_Final_Project/inputs/memin.txt";
 
-	UNIT_ARRAY = allocateUnitArray();
+	//read_config_from_file(cfg_file);
 
+	//UNIT_ARRAY = allocateUnitArray();
+	//freeUnitArray(UNIT_ARRAY);
 
-	freeUnitArray(UNIT_ARRAY);
+	printInstructionsFromFile(memin_file);
+	return 0;
+
+	
 }

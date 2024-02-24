@@ -3,6 +3,7 @@
 
 #include <stdio.h>
 #include <stdint.h>
+#include <stdlib.h>
 #include "Registers.h"
 
 // Enum for opcodes
@@ -24,12 +25,25 @@ typedef enum {
 #define SRC0_MASK    0x000F0000
 #define SRC1_MASK    0x0000F000
 
+// Instruction struct
+typedef struct {
+    Opcode opcode;
+    FPRegister dst;
+    FPRegister src0;
+    FPRegister src1;
+} Instruction;
+
 // Function declarations
-uint32_t createInstruction(Opcode opcode, FPRegister dst, FPRegister src0, FPRegister src1);
 Opcode getOpcode(uint32_t instruction);
 FPRegister getDst(uint32_t instruction);
 FPRegister getSrc0(uint32_t instruction);
 FPRegister getSrc1(uint32_t instruction);
-void printRegisterName(FPRegister reg);
+
+
+Instruction* createInstruction(uint32_t hexInstruction);
+void freeInstruction(Instruction* instr);
+void printInstruction(const Instruction* instr);
+Instruction* get_next_instruction(FILE* memin);
+void printInstructionsFromFile(const char* filename);
 
 #endif // INSTRUCTION_H

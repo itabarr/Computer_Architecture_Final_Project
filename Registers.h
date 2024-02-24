@@ -2,6 +2,10 @@
 #define REGISTERS_H
 
 #define NUM_REGISTERS 16
+#include <stdlib.h>
+#include <stdint.h>
+#include <stdio.h>
+#include "ReservationStation.h"
 
 // Enum for floating-point registers F0-F15
 typedef enum {
@@ -10,7 +14,9 @@ typedef enum {
 } FPRegister;
 
 typedef struct {
-    float registers[NUM_REGISTERS]; // Array to store the register values
+    float Vi[NUM_REGISTERS]; // Array to store the register values
+    ReservationStationTag Qi[NUM_REGISTERS];
+    int QiValid;
 } RegistersTable;
 
 // Function prototype to initialize the registers table

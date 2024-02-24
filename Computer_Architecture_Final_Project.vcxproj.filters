@@ -56,5 +56,8 @@
     <ClInclude Include="MemoryAllocation.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="ReservationStation.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

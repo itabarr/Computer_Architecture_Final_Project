@@ -2,15 +2,8 @@
 #ifndef UNIT_OPERATIONS_H
 #define UNIT_OPERATIONS_H
 
-#include "config.h" 
+#include "globals.h"
 #include "Instruction.h"
-
-// Enum for opcodes
-typedef enum {
-    OP_ADD = 0,
-    OP_MUL = 1,
-    OP_DIV = 2,
-} Operation;
 
 typedef struct {
     Operation operation;

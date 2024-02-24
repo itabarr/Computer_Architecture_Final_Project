@@ -141,17 +141,16 @@
     <ClCompile Include="Instruction.c" />
     <ClCompile Include="main.c" />
     <ClCompile Include="InstructionQueue.c" />
-    <ClCompile Include="MemoryAllocation.c" />
-    <ClCompile Include="Registres.c" />
+    <ClCompile Include="RegisterStatus.c" />
+    <ClCompile Include="ReservationStation.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ArithmeticUnits.h" />
-    <ClInclude Include="config.h" />
+    <ClInclude Include="globals.h" />
+    <ClInclude Include="RegisterStatus.h" />
     <ClInclude Include="ReservationStation.h" />
     <ClInclude Include="Instruction.h" />
     <ClInclude Include="InstructionQueue.h" />
-    <ClInclude Include="MemoryAllocation.h" />
-    <ClInclude Include="Registers.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

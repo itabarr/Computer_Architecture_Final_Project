@@ -34,6 +34,16 @@ int dequeue(InstructionQueue* q, Instruction** instruction) {
     return 1; // Success
 }
 
+int preDeque(InstructionQueue* q, Instruction** instruction) {
+    if (isEmpty(q)) {
+        return 0; // Queue is empty
+    }
+    *instruction = q->buffer[q->head];
+    return 1; // Success
+}
+
+
+
 
 InstructionQueue* createQueue() {
     InstructionQueue* q = (InstructionQueue*)malloc(sizeof(InstructionQueue));

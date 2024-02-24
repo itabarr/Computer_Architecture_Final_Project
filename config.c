@@ -1,18 +1,18 @@
-#include "config.h"
+#include "globals.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
 
-int ADD_NR_UNITS = 2;
-int MUL_NR_UNITS = 1;
-int DIV_NR_UNITS = 1;
-int ADD_NR_RESERVATION = 2;
-int MUL_NR_RESERVATION = 2;
-int DIV_NR_RESERVATION = 2;
-int ADD_DELAY = 2;
-int MUL_DELAY = 5;
-int DIV_DELAY = 20;
+uint32_t ADD_NR_UNITS = 2;
+uint32_t MUL_NR_UNITS = 1;
+uint32_t DIV_NR_UNITS = 1;
+uint32_t ADD_NR_RESERVATION = 2;
+uint32_t MUL_NR_RESERVATION = 2;
+uint32_t DIV_NR_RESERVATION = 2;
+uint32_t ADD_DELAY = 2;
+uint32_t MUL_DELAY = 5;
+uint32_t DIV_DELAY = 20;
 
 void read_config_from_file(const char* filename) {
     FILE* file = fopen(filename, "r");
@@ -47,7 +47,7 @@ void read_config_from_file(const char* filename) {
 }
 
 void remove_end_spaces(char* str) {
-    int index, i;
+    size_t index;
     index = strlen(str) - 1;
     while (index >= 0 && (str[index] == ' ' || str[index] == '\t')) {
         index--;

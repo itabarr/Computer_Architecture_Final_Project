@@ -5,8 +5,6 @@
 #include <stdlib.h>
 #include "Instruction.h"
 
-#define QUEUE_SIZE 16
-
 // Structure to represent the instruction queue
 typedef struct {
     Instruction* buffer[QUEUE_SIZE]; // Array to store pointers to the instructions
@@ -21,7 +19,7 @@ int isFull(InstructionQueue* q);
 int isEmpty(InstructionQueue* q);
 int enqueue(InstructionQueue* q, Instruction* instruction); 
 int dequeue(InstructionQueue* q, Instruction** instruction); 
-
+int preDeque(InstructionQueue* q, Instruction** instruction);
 
 // Function prototypes for dynamic allocation and deallocation of the instruction queue
 InstructionQueue* createQueue(void);

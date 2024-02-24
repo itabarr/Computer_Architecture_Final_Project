@@ -1,6 +1,5 @@
 #include "ArithmeticUnits.h"
 
-
 void initUnit(Unit* unit, Operation operation){
     unit->operation = operation;
     unit->operand1 = 0.0f;

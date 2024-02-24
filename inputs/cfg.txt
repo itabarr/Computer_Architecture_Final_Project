@@ -1,1 +1,9 @@
-Upon reviewing our preliminary report, you would find that the output obtained matches precisely with that depicted in figure 10. We have incorporated the simulation from the preliminary report:
+add_nr_units = 2
+mul_nr_units = 1
+div_nr_units = 1
+add_nr_reservation = 1
+mul_nr_reservation = 2
+div_nr_reservation = 5
+add_delay = 2
+mul_delay = 5
+div_delay = 20

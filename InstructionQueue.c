@@ -1,44 +1,63 @@
 #include "InstructionQueue.h"
 
-// Initialize the queue
 void initQueue(InstructionQueue* q) {
     q->head = 0;
     q->tail = 0;
     q->count = 0;
 }
 
-// Check if the queue is full
 int isFull(InstructionQueue* q) {
     return q->count == QUEUE_SIZE;
 }
 
-// Check if the queue is empty
 int isEmpty(InstructionQueue* q) {
     return q->count == 0;
 }
 
-// Enqueue an instruction
-int enqueue(InstructionQueue* q, int instruction) {
+int enqueue(InstructionQueue* q, Instruction* instruction) {
     if (isFull(q)) {
-        printf("Queue is full!\n");
-        return 0;
+        return 0; // Queue is full
     }
-
     q->buffer[q->tail] = instruction;
     q->tail = (q->tail + 1) % QUEUE_SIZE;
     q->count++;
-    return 1;
+    return 1; // Success
 }
 
-// Dequeue an instruction
-int dequeue(InstructionQueue* q, int* instruction) {
+int dequeue(InstructionQueue* q, Instruction** instruction) {
     if (isEmpty(q)) {
-        printf("Queue is empty!\n");
-        return 0;
+        return 0; // Queue is empty
     }
-
     *instruction = q->buffer[q->head];
     q->head = (q->head + 1) % QUEUE_SIZE;
     q->count--;
-    return 1;
+    return 1; // Success
+}
+
+
+InstructionQueue* createQueue() {
+    InstructionQueue* q = (InstructionQueue*)malloc(sizeof(InstructionQueue));
+    if (q == NULL) {
+        // Handle memory allocation failure
+        return NULL;
+    }
+    initQueue(q); // Initialize the queue
+    return q;
+}
+
+void freeQueue(InstructionQueue* q) {
+    if (q == NULL) {
+        return; // Guard against null pointer
+    }
+
+    // Optional: Free any remaining instructions in the queue
+    Instruction* instr;
+    while (!isEmpty(q)) {
+        if (dequeue(q, &instr)) {
+            freeInstruction(instr); // Assume this function correctly frees an Instruction object
+        }
+    }
+
+    // Free the queue structure itself
+    free(q);
 }

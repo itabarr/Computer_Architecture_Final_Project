@@ -2,6 +2,7 @@
 #include "config.h"
 #include "MemoryAllocation.h"
 #include "ArithmeticUnits.h"
+#include "InstructionQueue.h"
 
 int main() {
 
@@ -17,16 +18,26 @@ int main() {
 	
 	//Load 2 instruction each loop
 	Instruction* inst_0 , *inst_1;
+	InstructionQueue* inst_queue = createQueue();
+
 	FILE* memin = fopen(memin_file, "r");
+
 	while (1) {
 		if ((inst_0 = get_next_instruction(memin)) == NULL) {
 			break;
 		}
+
+		enqueue(inst_queue, inst_0);
+		// decide wether to push the instruction queue
+		// decide if to take the second one
 		if ((inst_1 = get_next_instruction(memin)) == NULL) {
 			break;
 		}
+		enqueue(inst_queue, inst_1);
 
 	}
+
+	freeQueue(inst_queue);
 
 	return 0;
 

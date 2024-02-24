@@ -20,7 +20,7 @@ typedef enum {
 #define DST_SHIFT    20
 #define SRC0_SHIFT   16
 #define SRC1_SHIFT   12
-#define OPCODE_MASK  0xF0000000
+#define OPCODE_MASK  0x0F000000
 #define DST_MASK     0x00F00000
 #define SRC0_MASK    0x000F0000
 #define SRC1_MASK    0x0000F000

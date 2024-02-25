@@ -55,7 +55,9 @@ int main() {
 		ExecuteAllReservationStations(rsa, &AddCDB, &MulCDB, &DivCDB);
 
 		// Brodcast CDB 
-		
+		BroadCastCDB(rsa, ua, reg_stat, &AddCDB, &MulCDB, &DivCDB);
+
+
 		// Fetch from istruction memory to instruction queue
 		if (!isFull(inst_queue)){
 			inst_0 = get_next_instruction(memin);
@@ -80,119 +82,92 @@ int main() {
 }
 
 void BroadCastCDB(ReservationStationArray* rsa, UnitArray* ua, RegistersTable* reg_stat, CDB* AddCDB, CDB* MulCDB, CDB* DivCDB) {
-	int i;
+
 	CDB* CDBArray[3] = { AddCDB , MulCDB, DivCDB };
+	ReservationStation* StationsArray[3] = { rsa->AddStations  , rsa->MulStations , rsa->DivStations };
+	uint32_t NR_RESERVATIONS[3] = { ADD_NR_RESERVATION  , MUL_NR_RESERVATION ,DIV_NR_RESERVATION };
+
+
+	ReservationStation* curStationsArr;
+	ReservationStation curStation;
+	CDB* curCDB;
 
 	// Update Qj and Qk tags and validity in reservation stations
+
+	// Outerloop on all CBD
 	for (int j = 0; j < 3; j++) {
-		for (i = 0; i < ADD_NR_RESERVATION; i++) {
-			if ((rsa->AddStations[i].Qk.ResIndex == CDBArray[j]->Tag.ResIndex) &&
-				(rsa->AddStations[i].Qk.ResType == CDBArray[j]->Tag.ResType) &&
-				(rsa->AddStations[i].QkValid == 1) &&
-				(CDBArray[j]->IsReady == 0)) {
-				rsa->AddStations[i].QkValid = 0;
-				rsa->AddStations[i].Vk = CDBArray[j]->Val;
-				rsa->AddStations[i].VkValid = 1;
-			}
-			if ((rsa->AddStations[i].Qj.ResIndex == CDBArray[j]->Tag.ResIndex) &&
-				(rsa->AddStations[i].Qj.ResType == CDBArray[j]->Tag.ResType) &&
-				(rsa->AddStations[i].QjValid == 1) &&
-				(CDBArray[j]->IsReady == 0)) {
-				rsa->AddStations[i].QjValid = 0;
-				rsa->AddStations[i].Vj = CDBArray[j]->Val;
-				rsa->AddStations[i].VjValid = 1;
-			}
-		}
+		curCDB = CDBArray[j];
 
-		for (i = 0; i < MUL_NR_RESERVATION; i++) {
-			if ((rsa->MulStations[i].Qk.ResIndex == CDBArray[j]->Tag.ResIndex) &&
-				(rsa->MulStations[i].Qk.ResType == CDBArray[j]->Tag.ResType) &&
-				(rsa->MulStations[i].QkValid == 1) &&
-				(CDBArray[j]->IsReady == 0)) {
-				rsa->MulStations[i].QkValid = 0;
-				rsa->MulStations[i].Vk = CDBArray[j]->Val;
-				rsa->MulStations[i].VkValid = 1;
-			}
-			if ((rsa->MulStations[i].Qj.ResIndex == CDBArray[j]->Tag.ResIndex) &&
-				(rsa->MulStations[i].Qj.ResType == CDBArray[j]->Tag.ResType) &&
-				(rsa->MulStations[i].QjValid == 1) &&
-				(CDBArray[j]->IsReady == 0)) {
-				rsa->MulStations[i].QjValid = 0;
-				rsa->MulStations[i].Vj = CDBArray[j]->Val;
-				rsa->MulStations[i].VjValid = 1;
-			}
-		}
+		// Inner loops on all stations types
+		for (int k = 0; k < 3; k++) {
+			curStationsArr = StationsArray[k];
 
-		for (i = 0; i < DIV_NR_RESERVATION; i++) {
-			if ((rsa->DivStations[i].Qk.ResIndex == CDBArray[j]->Tag.ResIndex) &&
-				(rsa->DivStations[i].Qk.ResType == CDBArray[j]->Tag.ResType) &&
-				(rsa->DivStations[i].QkValid == 1) &&
-				(CDBArray[j]->IsReady == 0)) {
-				rsa->DivStations[i].QkValid = 0;
-				rsa->DivStations[i].Vk = CDBArray[j]->Val;
-				rsa->DivStations[i].VkValid = 1;
-			}
-			if ((rsa->DivStations[i].Qj.ResIndex == CDBArray[j]->Tag.ResIndex) &&
-				(rsa->DivStations[i].Qj.ResType == CDBArray[j]->Tag.ResType) &&
-				(rsa->DivStations[i].QjValid == 1) &&
-				(CDBArray[j]->IsReady == 0)) {
-				rsa->DivStations[i].QjValid = 0;
-				rsa->DivStations[i].Vj = CDBArray[j]->Val;
-				rsa->DivStations[i].VjValid = 1;
+			// Inner x2 loop on all the availble stations per type "NR_RESERVATIONS[k]"
+			for (int i = 0; i < NR_RESERVATIONS[k]; i++) {
+				curStation = curStationsArr[i];
+
+				// Update "j" and "k" values
+				if (IsReservationTagEqual(curStation.Qk, curCDB->Tag) & curStation.QkValid & !curCDB->IsReady) {
+					curStation.QkValid = 0;
+					curStation.Vk = curCDB->Val;
+					curStation.VkValid = 1;
+				}
+				if (IsReservationTagEqual(curStation.Qj, curCDB->Tag) & curStation.QjValid & !curCDB->IsReady) {
+					curStation.QjValid = 0;
+					curStation.Vj = curCDB->Val;
+					curStation.VjValid = 1;
+				}
 			}
 		}
 	}
-
-
 	// Update resitser status table
-	for (i = 0; i < NUM_REGISTERS; i++) {
+
+	// Outer loop on all registers
+	for (int i = 0; i < NUM_REGISTERS; i++) {
+
+		// Inner loop on all CDBs
 		for (int j = 0; j < 3; j++) {
-			if (reg_stat->Qi[i].ResIndex == CDBArray[j]->Tag.ResIndex & reg_stat->Qi[i].ResType == CDBArray[j]->Tag.ResType & reg_stat->QiValid[i] == 1 & CDBArray[j]->IsReady == 0) {
+			curCDB = CDBArray[j];
+
+			// Update register table
+			if (IsReservationTagEqual(reg_stat->Qi[i], curCDB->Tag) & reg_stat->QiValid[i] & !curCDB->IsReady) {
 				reg_stat->QiValid[i] == 0;
-				reg_stat->Vi[i] = CDBArray[j]->Val;
+				reg_stat->Vi[i] = curCDB->Val;
 			}
 		}
 	}
 
+	// Clean station and brodcast CDB
+
+	// Outerloop on all CBD
 	for (int j = 0; j < 3; j++) {
-		if (CDBArray[j]->IsReady == 0) {
-			for (i = 0; i < ADD_NR_RESERVATION; i++) {
-				if (CDBArray[j]->Tag.ResIndex == rsa->AddStations->Tag.ResIndex &&
-					CDBArray[j]->Tag.ResType == rsa->AddStations->Tag.ResType) {
-					rsa->AddStations[i].IsBusy = 0;
-					rsa->AddStations[i].IsExectuing = 0;
-					rsa->AddStations[i].VjValid = 0;
-					rsa->AddStations[i].VkValid = 0;
-					CDBArray[j]->IsReady = 1;
-					rsa->AddStations[i].ArithUnit->IsBusy = 0;
-				}
-			}
-			for (i = 0; i < MUL_NR_RESERVATION; i++) {
-				if (CDBArray[j]->Tag.ResIndex == rsa->MulStations->Tag.ResIndex &&
-					CDBArray[j]->Tag.ResType == rsa->MulStations->Tag.ResType) {
-					rsa->MulStations[i].IsBusy = 0;
-					rsa->MulStations[i].IsExectuing = 0;
-					rsa->MulStations[i].VjValid = 0;
-					rsa->MulStations[i].VkValid = 0;
-					CDBArray[j]->IsReady = 1;
-					rsa->MulStations[i].ArithUnit->IsBusy = 0;
-				}
-			}
-			for (i = 0; i < DIV_NR_RESERVATION; i++) {
-				if (CDBArray[j]->Tag.ResIndex == rsa->DivStations->Tag.ResIndex &&
-					CDBArray[j]->Tag.ResType == rsa->DivStations->Tag.ResType) {
-					rsa->DivStations[i].IsBusy = 0;
-					rsa->DivStations[i].IsExectuing = 0;
-					rsa->DivStations[i].VjValid = 0;
-					rsa->DivStations[i].VkValid = 0;
-					CDBArray[j]->IsReady = 1;
-					rsa->DivStations[i].ArithUnit->IsBusy = 0;
+		curCDB = CDBArray[j];
+
+		// Inner loops on all stations types
+		for (int k = 0; k < 3; k++) {
+			curStationsArr = StationsArray[k];
+
+			// Inner x2 loop on all the availble stations per type "NR_RESERVATIONS[k]"
+			for (int i = 0; i < NR_RESERVATIONS[k]; i++) {
+				curStation = curStationsArr[i];
+
+				// Update "j" and "k" values
+				if (IsReservationTagEqual(curStation.Tag, curCDB->Tag)) {
+
+					curStation.IsBusy = 0;
+					curStation.IsExectuing = 0;
+					curStation.VjValid = 0;
+					curStation.VkValid = 0;
+					curStation.ArithUnit->IsBusy = 0;
+
+					curCDB->IsReady = 1;
+					
 				}
 			}
 		}
 	}
-
 }
+
 
 	
 

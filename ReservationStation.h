@@ -58,4 +58,5 @@ int IssueInstructionToReservationStation(ReservationStation * rs, RegistersTable
 void FindUnitForStation(ReservationStation* rs, UnitArray* ua);
 void FindUnitsForAllStations(ReservationStationArray* rsa , UnitArray* ua);
 void ExecuteAllReservationStations(ReservationStationArray* rsa, CDB* AddCDB, CDB* MulCDB, CDB* DivCDB);
+uint32_t IsReservationTagEqual(ReservationStationTag rst1, ReservationStationTag rst2);
 #endif // REGISTERS_H

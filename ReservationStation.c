@@ -326,3 +326,7 @@ void ExecuteAllReservationStations(ReservationStationArray* rsa , CDB *AddCDB , 
     }
 
 }
+
+uint32_t IsReservationTagEqual(ReservationStationTag rst1 , ReservationStationTag rst2) {
+    return ((rst1.ResIndex == rst2.ResIndex) & (rst1.ResType == rst2.ResType));
+}

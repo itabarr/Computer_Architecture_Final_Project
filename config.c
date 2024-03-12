@@ -13,6 +13,10 @@ uint32_t DIV_NR_RESERVATION = 2;
 uint32_t ADD_DELAY = 2;
 uint32_t MUL_DELAY = 5;
 uint32_t DIV_DELAY = 20;
+uint32_t CLK = 0;
+uint32_t INST_NUM = 0;
+uint32_t INST_COUNTER = 0;
+
 
 void read_config_from_file(const char* filename) {
     FILE* file = fopen(filename, "r");
@@ -53,5 +57,25 @@ void remove_end_spaces(char* str) {
         index--;
     }
     str[index + 1] = '\0';
+}
+
+int count_lines_in_file(const char* filename) {
+    FILE* file = fopen(filename, "r");
+    if (file == NULL) {
+        printf("Unable to open file: %s\n", filename);
+        return -1; // Return -1 to indicate an error occurred while opening the file
+    }
+
+    int line_count = 0;
+    int ch;
+    while ((ch = fgetc(file)) != EOF) {
+        if (ch == '\n') {
+            line_count++;
+        }
+    }
+
+    fclose(file);
+    INST_NUM = line_count;
+    return line_count;
 }
 //This is Roi the king!mbmn

@@ -91,7 +91,7 @@ ReservationStationArray* createReservationStationArray(void) {
 
     return rsa;
 }
-void freeReservationStationArray(ReservationStationArray* rsa) {
+int freeReservationStationArray(ReservationStationArray* rsa) {
     free(rsa->AddStations);
     free(rsa->MulStations);
     free(rsa->DivStations);
@@ -104,6 +104,14 @@ int IssueInstructionToReservationStationArray(ReservationStationArray* rsa, Regi
     case ADD:
         for (i = 0; i < ADD_NR_RESERVATION; i++) {
             if (!rsa->AddStations[i].IsBusy) {
+
+                if (rsa->AddStations[i].instruction !=NULL) {
+                    if (rsa->AddStations[i].instruction->Write_CDB ==CLK) {
+                        rsa->AddStations[i].instruction = NULL;
+                        continue;
+                    }
+                }
+
                 IssueInstructionToReservationStation(&(rsa->AddStations[i]), regstat, instruction);
                 return 1;
             }
@@ -112,7 +120,14 @@ int IssueInstructionToReservationStationArray(ReservationStationArray* rsa, Regi
         break;
     case SUB:
         for (i = 0; i < ADD_NR_RESERVATION; i++) {
-            if (!rsa->AddStations[i].IsBusy) {
+            if (!rsa->AddStations[i].IsBusy ) {
+                if (rsa->AddStations[i].instruction != NULL) {
+                    if (rsa->AddStations[i].instruction->Write_CDB == CLK) {
+                        rsa->AddStations[i].instruction = NULL;
+                        continue;
+                    }
+                }
+                
                 IssueInstructionToReservationStation(&(rsa->AddStations[i]), regstat, instruction);
                 return 1;
             }
@@ -120,7 +135,13 @@ int IssueInstructionToReservationStationArray(ReservationStationArray* rsa, Regi
         break;
     case MULT:
         for (i = 0; i < MUL_NR_RESERVATION; i++) {
-            if (!rsa->MulStations[i].IsBusy) {
+            if (!rsa->MulStations[i].IsBusy ) {
+                if (rsa->MulStations[i].instruction != NULL) {
+                    if (rsa->MulStations[i].instruction->Write_CDB == CLK) {
+                        rsa->MulStations[i].instruction = NULL;
+                        continue;
+                    }
+                }
                 IssueInstructionToReservationStation(&(rsa->MulStations[i]), regstat, instruction);
                 return 1;
             }
@@ -130,6 +151,12 @@ int IssueInstructionToReservationStationArray(ReservationStationArray* rsa, Regi
     case DIV:
         for (i = 0; i < DIV_NR_RESERVATION; i++) {
             if (!rsa->DivStations[i].IsBusy) {
+                if (rsa->DivStations[i].instruction != NULL) {
+                    if (rsa->DivStations[i].instruction->Write_CDB == CLK) {
+                        rsa->DivStations[i].instruction = NULL;
+                        continue;
+                    }
+                }
                 IssueInstructionToReservationStation(&(rsa->DivStations[i]), regstat, instruction);
                 return 1;
             }
@@ -182,6 +209,9 @@ int IssueInstructionToReservationStation(ReservationStation *rs , RegistersTable
     regstat->Qi[tmp_dst] = rs->Tag;
     regstat->QiValid[tmp_dst] = 1;
     
+    // Update Issuein
+    instruction->Issue = CLK;
+    rs->instruction->tag = rs->Tag;
     return 1;
 }
 
@@ -198,6 +228,7 @@ void FindUnitForStation(ReservationStation* rs , UnitArray* ua) {
                 
                 rs->ArithUnit = &(ua->AddUnits[i]);
                 rs->IsExectuing = 1;
+                break;
             }
         }
         break;
@@ -209,6 +240,7 @@ void FindUnitForStation(ReservationStation* rs , UnitArray* ua) {
 
                 rs->ArithUnit = &(ua->MulUnits[i]);
                 rs->IsExectuing = 1;
+                break;
             }
         }
         break;
@@ -220,12 +252,15 @@ void FindUnitForStation(ReservationStation* rs , UnitArray* ua) {
 
                 rs->ArithUnit = &(ua->DivUnits[i]);
                 rs->IsExectuing = 1;
+                break;
             }
         }
         break;
     default:
         break;
     }
+
+
     return 0;
 }
 
@@ -265,11 +300,22 @@ void ExecuteAllReservationStations(ReservationStationArray* rsa , CDB *AddCDB , 
     for (i = 0; i < ADD_NR_RESERVATION; i++) {
         cur_rs = &(rsa->AddStations[i]);
 
+
+
         if (cur_rs->IsExectuing) {
-            if (cur_rs->ArithUnit->InternalTimer != 0) {
+            if (cur_rs->instruction->Execute_Start == 0) {
+                cur_rs->instruction->Execute_Start = CLK;
+            }
+
+            if (cur_rs->ArithUnit->InternalTimer != 1) {
                 cur_rs->ArithUnit->InternalTimer--;
             }
+
             else {
+                if (cur_rs->instruction->Execute_End == 0) {
+                    cur_rs->instruction->Execute_End = CLK;
+                }
+
                 if (AddCDB->IsReady) {
                     AddCDB->IsReady = 0;
 
@@ -281,27 +327,36 @@ void ExecuteAllReservationStations(ReservationStationArray* rsa , CDB *AddCDB , 
                         AddCDB->Val = cur_rs->Vk - cur_rs->Vj;
                     }
 
-                    
                     AddCDB->Instruction = cur_rs->instruction;
                     AddCDB->Tag = cur_rs->Tag;
                 }
+
+                
             }
         }
     }
 
     for (i = 0; i < MUL_NR_RESERVATION; i++) {
         cur_rs = &(rsa->MulStations[i]);
-
         if (cur_rs->IsExectuing) {
-            if (cur_rs->ArithUnit->InternalTimer != 0) {
+            if (cur_rs->instruction->Execute_Start == 0) {
+                cur_rs->instruction->Execute_Start = CLK;
+            }
+
+            if (cur_rs->ArithUnit->InternalTimer != 1) {
                 cur_rs->ArithUnit->InternalTimer--;
             }
+
             else {
+                if (cur_rs->instruction->Execute_End == 0) {
+                    cur_rs->instruction->Execute_End = CLK;
+                }
                 if (MulCDB->IsReady) {
                     MulCDB->IsReady = 0;
                     MulCDB->Val = cur_rs->Vj * cur_rs->Vk; 
                     MulCDB->Instruction = cur_rs->instruction;
                     MulCDB->Tag = cur_rs->Tag;
+                    
                 }
             }
         }
@@ -309,17 +364,26 @@ void ExecuteAllReservationStations(ReservationStationArray* rsa , CDB *AddCDB , 
 
     for (i = 0; i < DIV_NR_RESERVATION; i++) {
         cur_rs = &(rsa->DivStations[i]);
-
         if (cur_rs->IsExectuing) {
-            if (cur_rs->ArithUnit->InternalTimer != 0) {
+            if (cur_rs->instruction->Execute_Start == 0) {
+                cur_rs->instruction->Execute_Start = CLK;
+            }
+
+            if (cur_rs->ArithUnit->InternalTimer != 1) {
+                
                 cur_rs->ArithUnit->InternalTimer--;
             }
             else {
+                if (cur_rs->instruction->Execute_End == 0) {
+                    cur_rs->instruction->Execute_End = CLK;
+                }
+
                 if (DivCDB->IsReady) {
                     DivCDB->IsReady = 0;
                     DivCDB->Val = (cur_rs->Vj != 0) ? cur_rs->Vk / cur_rs->Vj : 0;
                     DivCDB->Instruction = cur_rs->instruction;
                     DivCDB->Tag = cur_rs->Tag;
+                    
                 }
             }
         }

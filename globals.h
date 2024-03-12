@@ -17,6 +17,9 @@ extern uint32_t DIV_NR_RESERVATION;
 extern uint32_t ADD_DELAY;
 extern uint32_t MUL_DELAY;
 extern uint32_t DIV_DELAY;
+extern uint32_t CLK;
+extern uint32_t INST_NUM;
+extern uint32_t INST_COUNTER;
 
 // Define masks and shifts according to the instruction layout
 #define OPCODE_SHIFT 24
@@ -54,11 +57,13 @@ typedef enum {
 typedef struct {
     enum Operation ResType;
     uint32_t ResIndex;
+    char name[4];
 } ReservationStationTag;
 
 
 // Function declaration to update config from a file
 void read_config_from_file(const char* filename);
 void remove_end_spaces(char* str);
+int count_lines_in_file(const char* filename);
 
 #endif

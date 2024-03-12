@@ -52,7 +52,7 @@ typedef struct {
 
 
 ReservationStationArray* createReservationStationArray(void);
-void freeReservationStationArray(ReservationStationArray* rsa);
+int freeReservationStationArray(ReservationStationArray* rsa);
 int IssueInstructionToReservationStationArray(ReservationStationArray* rsa, RegistersTable* regstat, Instruction* instruction);
 int IssueInstructionToReservationStation(ReservationStation * rs, RegistersTable * regstat, Instruction * instruction) ;
 void FindUnitForStation(ReservationStation* rs, UnitArray* ua);
